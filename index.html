@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="icon" href="icon.png">
+    <title>Simulador de Apuração do IVA (IBS, CBS, IS)</title>
+   
+
+
+<!-- META TAGS PARA COMPARTILHAMENTO SOCIAL -->
+
+<!-- Open Graph para Facebook, LinkedIn etc -->
+<meta name="type" property="og:type" content="website">
+<meta name="url" property="og:url" content="https://odangdi.github.io/simulador-apuracao-IVA/">
+<meta name="title" property="og:title" content="Simulador de Apuração do IVA (IBS, CBS, IS)">
+<meta name="description" property="og:description" content="Esta ferramenta permite simular a apuração do IVA ao longo de uma cadeia produtiva, desde a produção inicial até a venda ao consumidor final, destacando os valores das notas fiscais, o crédito e o débito de IVA em cada etapa, além de detalhar os tributos IBS, CBS e IS gerados e compensados em todas as fases do processo.">
+<meta name="image" property="og:image" content="https://raw.githubusercontent.com/odangdi/simulador-apuracao/main/Tela%20Simulador%20apuracao.jpg">
+<meta name="author" content="[Diego D'angelo]">
+
+
+
+
+ <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000302 40%, #667eea 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .input-section h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .example-text {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+            font-style: italic;
+            color: #4a5568;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-group h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"] {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .results-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #f7fafc;
+            color: #2d3748;
+            font-weight: 600;
+            padding: 15px 10px;
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        td {
+            padding: 12px 10px;
+            text-align: right;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.2s ease;
+        }
+
+        td:first-child {
+            text-align: left;
+        }
+
+        tr:hover td {
+            background-color: #f7fafc;
+        }
+
+        .etapa-1 { border-left: 4px solid #48bb78; }
+        .etapa-2 { border-left: 4px solid #4299e1; }
+        .etapa-3 { border-left: 4px solid #ed8936; }
+        .etapa-4 { border-left: 4px solid #9f7aea; }
+
+        .currency {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .tax-value {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        .total-row {
+            background: #f7fafc;
+            font-weight: 600;
+        }
+
+        .total-row td {
+            border-top: 2px solid #4a5568;
+            color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .input-section, .results-section {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Simulador IVA na Cadeia Produtiva (IBS, CBS, IS)</h1>
+            <p>Esta ferramenta permite simular a apuração do IVA ao longo de uma cadeia produtiva, desde a produção inicial até a venda ao consumidor final, destacando os valores das notas fiscais, o crédito e o débito de IVA em cada etapa, além de detalhar os tributos IBS, CBS e IS gerados e compensados em todas as fases do processo.</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>📝 Dados da Cadeia Produtiva</h2>
+                
+                <div class="input-group" style="background: #e6fffa; border-left: 4px solid #38b2ac;">
+                    <h3>📊 Configuração dos Percentuais de Impostos</h3>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="percentualIbsMunicipal">IBS Municipal (%)</label>
+                            <input type="number" id="percentualIbsMunicipal" step="0.01" value="5.70">
+                        </div>
+                        <div class="input-field">
+                            <label for="percentualIbsEstadual">IBS Estadual (%)</label>
+                            <input type="number" id="percentualIbsEstadual" step="0.01" value="12.00">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="percentualCbs">CBS (%)</label>
+                            <input type="number" id="percentualCbs" step="0.01" value="8.80">
+                        </div>
+                        <div class="input-field">
+                            <label for="percentualIs">IS - imposto seletivo (%)</label>
+                            <input type="number" id="percentualIs" step="0.01" value="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-text">
+                    <strong>Exemplo:</strong> Empresa 1: algodão | Empresa 2: carretel de linha | Empresa 3: tecido | Empresa 4 Final: camisa algodão básica
+                </div>
+
+                <div class="input-group etapa-1">
+                    <h3>🌱 Empresa 1</h3>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="quantidadePapel">Quantidade</label>
+                            <input type="number" id="quantidadePapel" step="0.01" value="10.00">
+                        </div>
+                        <div class="input-field">
+                            <label for="precoPapel">Preço (R$)</label>
+                            <input type="number" id="precoPapel" step="0.01" value="4.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group etapa-2">
+                    <h3>🧵 Empresa 2</h3>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="quantidadePapelao">Quantidade</label>
+                            <input type="number" id="quantidadePapelao" step="0.01" value="1.00">
+                        </div>
+                        <div class="input-field">
+                            <label for="precoPapelao">Preço (R$)</label>
+                            <input type="number" id="precoPapelao" step="0.01" value="6.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group etapa-3">
+                    <h3>🧣 Empresa 3</h3>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="quantidadePapelao3">Quantidade</label>
+                            <input type="number" id="quantidadePapelao3" step="0.01" value="2.00">
+                        </div>
+                        <div class="input-field">
+                            <label for="precoPapelao3">Preço (R$)</label>
+                            <input type="number" id="precoPapelao3" step="0.01" value="9.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group etapa-4">
+                    <h3>👕 Empresa 4: Produto Final</h3>
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label for="quantidadeVenda">Quantidade</label>
+                            <input type="number" id="quantidadeVenda" step="0.01" value="1.00">
+                        </div>
+                        <div class="input-field">
+                            <label for="precoVenda">Preço (R$)</label>
+                            <input type="number" id="precoVenda" step="0.01" value="18.00">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calcularImpostos()">
+                    Calcular Impostos
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>📈 Resultados da Simulação</h2>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calculando impostos...</p>
+                </div>
+
+                <div class="table-container">
+                    <table id="resultadoTabela">
+                        <thead>
+                            <tr>
+                                <th>ITEM</th>
+                                <th class="etapa-1">🌱 Empresa 1<br>
+                                <th class="etapa-2">🧵 Empresa 2<br>
+                                <th class="etapa-3">🧣 Empresa 3<br>
+                                <th class="etapa-4">👕 Empresa 4<br>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Quantidade</strong></td>
+                                <td id="quantidadePapelResultado">-</td>
+                                <td id="quantidadePapelaoResultado">-</td>
+                                <td id="quantidadePapelao3Resultado">-</td>
+                                <td id="quantidadeVendaResultado">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Preço Unitário</strong></td>
+                                <td id="precoPapelResultado" class="currency">-</td>
+                                <td id="precoPapelaoResultado" class="currency">-</td>
+                                <td id="precoPapelao3Resultado" class="currency">-</td>
+                                <td id="precoVendaResultado" class="currency">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Valor Total</strong></td>
+                                <td id="valorTotalPapel" class="currency">-</td>
+                                <td id="valorTotalPapelao" class="currency">-</td>
+                                <td id="valorTotalPapelao3" class="currency">-</td>
+                                <td id="valorTotalVenda" class="currency">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IS (imposto seletivo)</strong></td>
+                                <td id="isPapel" class="tax-value">-</td>
+                                <td id="isPapelao" class="tax-value">-</td>
+                                <td id="isPapelao3" class="tax-value">-</td>
+                                <td id="isVenda" class="tax-value">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IBS Municipal</strong></td>
+                                <td id="ibsMunicipalPapel" class="tax-value">-</td>
+                                <td id="ibsMunicipalPapelao" class="tax-value">-</td>
+                                <td id="ibsMunicipalPapelao3" class="tax-value">-</td>
+                                <td id="ibsMunicipalVenda" class="tax-value">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IBS Estadual</strong></td>
+                                <td id="ibsEstadualPapel" class="tax-value">-</td>
+                                <td id="ibsEstadualPapelao" class="tax-value">-</td>
+                                <td id="ibsEstadualPapelao3" class="tax-value">-</td>
+                                <td id="ibsEstadualVenda" class="tax-value">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CBS</strong></td>
+                                <td id="cbsPapel" class="tax-value">-</td>
+                                <td id="cbsPapelao" class="tax-value">-</td>
+                                <td id="cbsPapelao3" class="tax-value">-</td>
+                                <td id="cbsVenda" class="tax-value">-</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td><strong>Total IVA</strong></td>
+                                <td id="totalIvaPapel" class="tax-value">-</td>
+                                <td id="totalIvaPapelao" class="tax-value">-</td>
+                                <td id="totalIvaPapelao3" class="tax-value">-</td>
+                                <td id="totalIvaVenda" class="tax-value">-</td>
+                            </tr>
+                            <tr style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                                <td><strong>📊 IVA Apurado</strong></td>
+                                <td id="ivaApuradoPapel" class="tax-value" style="color: #856404; font-weight: 700;">-</td>
+                                <td id="ivaApuradoPapelao" class="tax-value" style="color: #856404; font-weight: 700;">-</td>
+                                <td id="ivaApuradoPapelao3" class="tax-value" style="color: #856404; font-weight: 700;">-</td>
+                                <td id="ivaApuradoVenda" class="tax-value" style="color: #856404; font-weight: 700;">-</td>
+                            </tr>
+                            <tr class="total-row" style="background: #e2e8f0; font-weight: 700;">
+                                <td><strong>💰 Total Nota Fiscal</strong></td>
+                                <td id="valorNotaFiscalPapel" class="currency" style="color: #2d3748; font-size: 1.1em;">-</td>
+                                <td id="valorNotaFiscalPapelao" class="currency" style="color: #2d3748; font-size: 1.1em;">-</td>
+                                <td id="valorNotaFiscalPapelao3" class="currency" style="color: #2d3748; font-size: 1.1em;">-</td>
+                                <td id="valorNotaFiscalVenda" class="currency" style="color: #2d3748; font-size: 1.1em;">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="results-section" style="margin-top: 30px;">
+                <div class="results-header">
+                    <h2>📋 Resumo do IVA Apurado por Etapa</h2>
+                </div>
+
+                <div class="table-container">
+                    <table style="max-width: 500px; margin: 0 auto;">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%; background: #e3f2fd;">Etapa</th>
+                                <th style="width: 50%; background: #e3f2fd;">Valor do IVA Apurado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="etapa-1">
+                                <td style="font-weight: 600; color: #2d3748;">🌱 Etapa 1</td>
+                                <td id="resumoIvaEtapa1" class="currency" style="font-weight: 600; color: #48bb78;">-</td>
+                            </tr>
+                            <tr class="etapa-2">
+                                <td style="font-weight: 600; color: #2d3748;">🧵 Etapa 2</td>
+                                <td id="resumoIvaEtapa2" class="currency" style="font-weight: 600; color: #4299e1;">-</td>
+                            </tr>
+                            <tr class="etapa-3">
+                                <td style="font-weight: 600; color: #2d3748;">🧣 Etapa 3</td>
+                                <td id="resumoIvaEtapa3" class="currency" style="font-weight: 600; color: #ed8936;">-</td>
+                            </tr>
+                            <tr class="etapa-4">
+                                <td style="font-weight: 600; color: #2d3748;">👕 Etapa 4 - Venda Final</td>
+                                <td id="resumoIvaEtapa4" class="currency" style="font-weight: 600; color: #9f7aea;">-</td>
+                            </tr>
+                            <tr style="background: #2d3748; color: white; font-weight: 700; border-top: 3px solid #4a5568;">
+                                <td style="padding: 15px; font-size: 1.1em;">💱<strong>IVA TOTAL DA CADEIA PRODUTIVA</strong></td>
+                                <td id="resumoIvaTotal" style="padding: 15px; font-size: 1.2em; color: #68d391;">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="background: rgba(0,0,0,0.2); color: white; padding: 30px 20px; margin-top: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="max-width: 1200px; margin: 0 auto; display: grid; gap: 20px;">
+            
+            <!-- Feedback -->
+            <div>
+                <a href="https://forms.gle/FgHaFehB74mNmxH98" target="_blank" style="color: #4fd1c7; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    ✅ Dê seu feedback sobre este conteúdo
+                </a>
+            </div>
+
+            <!-- eBooks Amazon -->
+            <div>
+                <h3 style="font-weight: 600; margin-bottom: 10px; color: white;">📚 eBooks de Estudos Fiscais na Amazon:</h3>
+                <a href="https://www.amazon.com.br/dp/B0FB4BDH8V" target="_blank" style="display: block; color: #93c5fd; text-decoration: none; margin-bottom: 5px; transition: all 0.3s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    ■ CRÉDITOS DE IBS e CBS: uso e consumo pessoal
+                </a>
+                <a href="https://www.amazon.com.br/dp/B0DHGB27K2" target="_blank" style="display: block; color: #93c5fd; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    ■ EXCLUSÃO ICMS DA BASE PIS E COFINS: formação do preço de venda
+                </a>
+            </div>
+
+            <!-- Informações legais -->
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; line-height: 1.4;">
+                Simulador desenvolvido para auxiliar no cálculo de impostos da Reforma Tributária com base na Lei Complementar nº 214, de 16/01/2025 e legislação anterior.<br>
+                &copy; 2025 Diego D'Angelo. Licenciado sob
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: underline;">
+                    CC BY 4.0
+                </a>
+            </div>
+
+            <!-- LinkedIn -->
+            <div>
+                Me siga no LinkedIn –
+                <a href="https://www.linkedin.com/in/diegodangelo-di-ryco/" target="_blank" style="color: #0ea5e9; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    Diego D'Angelo
+                </a>
+                <a href="https://www.linkedin.com/in/diegodangelo-di-ryco/" target="_blank" style="display: inline-block; margin-left: 5px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" width="20" height="20" style="vertical-align: middle;">
+                </a>
+            </div>
+
+            <!-- Botão de Compartilhar -->
+            <button onclick="compartilhar()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; margin: 0 auto; display: inline-block;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                🔗 Compartilhar esta página
+            </button>
+
+        </div>
+    </footer>
+
+    <script>
+        function compartilhar() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Simulador IVA na Cadeia Produtiva (IBS, CBS, IS)',
+                    text: 'Confira este simulador para calcular impostos da Reforma Tributária na cadeia produtiva.',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback para navegadores que não suportam Web Share API
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Link copiado para a área de transferência!');
+                }).catch(() => {
+                    // Fallback final
+                    const textArea = document.createElement('textarea');
+                    textArea.value = window.location.href;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('Link copiado para a área de transferência!');
+                });
+            }
+        }
+        function calcularImpostos() {
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            
+            // Simulate calculation delay for better UX
+            setTimeout(() => {
+                // Get input values
+                const quantidadePapel = parseFloat(document.getElementById('quantidadePapel').value) || 0;
+                const precoPapel = parseFloat(document.getElementById('precoPapel').value) || 0;
+                const quantidadePapelao = parseFloat(document.getElementById('quantidadePapelao').value) || 0;
+                const precoPapelao = parseFloat(document.getElementById('precoPapelao').value) || 0;
+                const quantidadePapelao3 = parseFloat(document.getElementById('quantidadePapelao3').value) || 0;
+                const precoPapelao3 = parseFloat(document.getElementById('precoPapelao3').value) || 0;
+                const quantidadeVenda = parseFloat(document.getElementById('quantidadeVenda').value) || 0;
+                const precoVenda = parseFloat(document.getElementById('precoVenda').value) || 0;
+
+                // Get tax percentages
+                const percentualIbsMunicipal = parseFloat(document.getElementById('percentualIbsMunicipal').value) || 0;
+                const percentualIbsEstadual = parseFloat(document.getElementById('percentualIbsEstadual').value) || 0;
+                const percentualCbs = parseFloat(document.getElementById('percentualCbs').value) || 0;
+                const percentualIs = parseFloat(document.getElementById('percentualIs').value) || 0;
+
+                // Calculate total values (valor líquido)
+                const valorTotalPapel = quantidadePapel * precoPapel;
+                const valorTotalPapelao = quantidadePapelao * precoPapelao;
+                const valorTotalPapelao3 = quantidadePapelao3 * precoPapelao3;
+                const valorTotalVenda = quantidadeVenda * precoVenda;
+
+                // Calculate IS (imposto seletivo) - primeiro sobre valor líquido
+                const isPapel = valorTotalPapel * (percentualIs / 100);
+                const isPapelao = valorTotalPapelao * (percentualIs / 100);
+                const isPapelao3 = valorTotalPapelao3 * (percentualIs / 100);
+                const isVenda = valorTotalVenda * (percentualIs / 100);
+
+                // Calculate base for other taxes (valor líquido + IS)
+                const baseCalculoPapel = valorTotalPapel + isPapel;
+                const baseCalculoPapelao = valorTotalPapelao + isPapelao;
+                const baseCalculoPapelao3 = valorTotalPapelao3 + isPapelao3;
+                const baseCalculoVenda = valorTotalVenda + isVenda;
+
+                // Calculate IBS Municipal
+                const ibsMunicipalPapel = baseCalculoPapel * (percentualIbsMunicipal / 100);
+                const ibsMunicipalPapelao = baseCalculoPapelao * (percentualIbsMunicipal / 100);
+                const ibsMunicipalPapelao3 = baseCalculoPapelao3 * (percentualIbsMunicipal / 100);
+                const ibsMunicipalVenda = baseCalculoVenda * (percentualIbsMunicipal / 100);
+
+                // Calculate IBS Estadual
+                const ibsEstadualPapel = baseCalculoPapel * (percentualIbsEstadual / 100);
+                const ibsEstadualPapelao = baseCalculoPapelao * (percentualIbsEstadual / 100);
+                const ibsEstadualPapelao3 = baseCalculoPapelao3 * (percentualIbsEstadual / 100);
+                const ibsEstadualVenda = baseCalculoVenda * (percentualIbsEstadual / 100);
+
+                // Calculate CBS
+                const cbsPapel = baseCalculoPapel * (percentualCbs / 100);
+                const cbsPapelao = baseCalculoPapelao * (percentualCbs / 100);
+                const cbsPapelao3 = baseCalculoPapelao3 * (percentualCbs / 100);
+                const cbsVenda = baseCalculoVenda * (percentualCbs / 100);
+
+                // Calculate total IVA (IS + IBS Municipal + IBS Estadual + CBS)
+                const totalIvaPapel = isPapel + ibsMunicipalPapel + ibsEstadualPapel + cbsPapel;
+                const totalIvaPapelao = isPapelao + ibsMunicipalPapelao + ibsEstadualPapelao + cbsPapelao;
+                const totalIvaPapelao3 = isPapelao3 + ibsMunicipalPapelao3 + ibsEstadualPapelao3 + cbsPapelao3;
+                const totalIvaVenda = isVenda + ibsMunicipalVenda + ibsEstadualVenda + cbsVenda;
+
+                // Calculate IVA Apurado (net tax due at each stage)
+                const ivaApuradoPapel = totalIvaPapel; // First stage: full IVA amount
+                const ivaApuradoPapelao = totalIvaPapelao - totalIvaPapel; // Second stage: current IVA minus previous
+                const ivaApuradoPapelao3 = totalIvaPapelao3 - totalIvaPapelao; // Third stage: current IVA minus previous
+                const ivaApuradoVenda = totalIvaVenda - totalIvaPapelao3; // Fourth stage: current IVA minus previous
+
+                // Calculate total invoice value (Valor Total + Total IVA)
+                const valorNotaFiscalPapel = valorTotalPapel + totalIvaPapel;
+                const valorNotaFiscalPapelao = valorTotalPapelao + totalIvaPapelao;
+                const valorNotaFiscalPapelao3 = valorTotalPapelao3 + totalIvaPapelao3;
+                const valorNotaFiscalVenda = valorTotalVenda + totalIvaVenda;
+
+                // Format currency
+                const formatCurrency = (value) => `R$ ${value.toFixed(2).replace('.', ',')}`;
+
+                // Update results
+                document.getElementById('quantidadePapelResultado').textContent = quantidadePapel.toFixed(2);
+                document.getElementById('quantidadePapelaoResultado').textContent = quantidadePapelao.toFixed(2);
+                document.getElementById('quantidadePapelao3Resultado').textContent = quantidadePapelao3.toFixed(2);
+                document.getElementById('quantidadeVendaResultado').textContent = quantidadeVenda.toFixed(2);
+
+                document.getElementById('precoPapelResultado').textContent = formatCurrency(precoPapel);
+                document.getElementById('precoPapelaoResultado').textContent = formatCurrency(precoPapelao);
+                document.getElementById('precoPapelao3Resultado').textContent = formatCurrency(precoPapelao3);
+                document.getElementById('precoVendaResultado').textContent = formatCurrency(precoVenda);
+
+                document.getElementById('valorTotalPapel').textContent = formatCurrency(valorTotalPapel);
+                document.getElementById('valorTotalPapelao').textContent = formatCurrency(valorTotalPapelao);
+                document.getElementById('valorTotalPapelao3').textContent = formatCurrency(valorTotalPapelao3);
+                document.getElementById('valorTotalVenda').textContent = formatCurrency(valorTotalVenda);
+
+                document.getElementById('isPapel').textContent = formatCurrency(isPapel);
+                document.getElementById('isPapelao').textContent = formatCurrency(isPapelao);
+                document.getElementById('isPapelao3').textContent = formatCurrency(isPapelao3);
+                document.getElementById('isVenda').textContent = formatCurrency(isVenda);
+
+                document.getElementById('ibsMunicipalPapel').textContent = formatCurrency(ibsMunicipalPapel);
+                document.getElementById('ibsMunicipalPapelao').textContent = formatCurrency(ibsMunicipalPapelao);
+                document.getElementById('ibsMunicipalPapelao3').textContent = formatCurrency(ibsMunicipalPapelao3);
+                document.getElementById('ibsMunicipalVenda').textContent = formatCurrency(ibsMunicipalVenda);
+
+                document.getElementById('ibsEstadualPapel').textContent = formatCurrency(ibsEstadualPapel);
+                document.getElementById('ibsEstadualPapelao').textContent = formatCurrency(ibsEstadualPapelao);
+                document.getElementById('ibsEstadualPapelao3').textContent = formatCurrency(ibsEstadualPapelao3);
+                document.getElementById('ibsEstadualVenda').textContent = formatCurrency(ibsEstadualVenda);
+
+                document.getElementById('cbsPapel').textContent = formatCurrency(cbsPapel);
+                document.getElementById('cbsPapelao').textContent = formatCurrency(cbsPapelao);
+                document.getElementById('cbsPapelao3').textContent = formatCurrency(cbsPapelao3);
+                document.getElementById('cbsVenda').textContent = formatCurrency(cbsVenda);
+
+                document.getElementById('totalIvaPapel').textContent = formatCurrency(totalIvaPapel);
+                document.getElementById('totalIvaPapelao').textContent = formatCurrency(totalIvaPapelao);
+                document.getElementById('totalIvaPapelao3').textContent = formatCurrency(totalIvaPapelao3);
+                document.getElementById('totalIvaVenda').textContent = formatCurrency(totalIvaVenda);
+
+                document.getElementById('ivaApuradoPapel').textContent = formatCurrency(ivaApuradoPapel);
+                document.getElementById('ivaApuradoPapelao').textContent = formatCurrency(ivaApuradoPapelao);
+                document.getElementById('ivaApuradoPapelao3').textContent = formatCurrency(ivaApuradoPapelao3);
+                document.getElementById('ivaApuradoVenda').textContent = formatCurrency(ivaApuradoVenda);
+
+                document.getElementById('valorNotaFiscalPapel').textContent = formatCurrency(valorNotaFiscalPapel);
+                document.getElementById('valorNotaFiscalPapelao').textContent = formatCurrency(valorNotaFiscalPapelao);
+                document.getElementById('valorNotaFiscalPapelao3').textContent = formatCurrency(valorNotaFiscalPapelao3);
+                document.getElementById('valorNotaFiscalVenda').textContent = formatCurrency(valorNotaFiscalVenda);
+
+                // Update summary table
+                document.getElementById('resumoIvaEtapa1').textContent = formatCurrency(ivaApuradoPapel);
+                document.getElementById('resumoIvaEtapa2').textContent = formatCurrency(ivaApuradoPapelao);
+                document.getElementById('resumoIvaEtapa3').textContent = formatCurrency(ivaApuradoPapelao3);
+                document.getElementById('resumoIvaEtapa4').textContent = formatCurrency(ivaApuradoVenda);
+
+                // Calculate and display total collected tax
+                const totalArrecadado = ivaApuradoPapel + ivaApuradoPapelao + ivaApuradoPapelao3 + ivaApuradoVenda;
+                document.getElementById('resumoIvaTotal').textContent = formatCurrency(totalArrecadado);
+
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+            }, 800);
+        }
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                // Optional: Auto-calculate on change
+                // calcularImpostos();
+            });
+        });
+    </script>
+</html>
